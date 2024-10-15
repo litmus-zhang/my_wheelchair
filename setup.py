@@ -23,6 +23,9 @@ setup(
             'mapping_node = my_wheelchair.mapping_node:main',
             'sensors_node = my_wheelchair.sensors_node:main',
             'navigation_node = my_wheelchair.navigation_node:main',
+            'voice_recognition_node = my_wheelchair.voice_recognition_node:main',
+            'navigation_feedback_node = my_wheelchair.scripts.navigation_command_node:main',
+            'voice_feedback_node = my_wheelchair.scripts.voice_recognition_node:main',
         ],
     },
 )
