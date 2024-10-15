@@ -14,5 +14,5 @@ spec:
     spec:
       containers:
       - name: ros2-foxy
-        image: localhost:32000/my_wheelchair:v1
+        image: my_wheelchair:v1
         imagePullPolicy: Always
