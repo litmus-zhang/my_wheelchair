@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ros2-foxy-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ros2-foxy
+  template:
+    metadata:
+      labels:
+        app: ros2-foxy
+    spec:
+      containers:
+      - name: ros2-foxy
+        image: localhost:32000/my_wheelchair:v1
+        imagePullPolicy: Always

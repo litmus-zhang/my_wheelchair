@@ -4,6 +4,9 @@ FROM ros:foxy
 RUN apt-get update && apt-get install -y \
     python3-pip \
     && rm -rf /var/lib/apt/lists/*
+RUN apt-get install python3-pip 
+RUN apt-get install portaudio19-dev
+RUN pip3 install SpeechRecognition pyaudio pyttsx3 RPi.GPIO
 
 # Set up your ROS 2 workspace
 WORKDIR /ros2_ws
