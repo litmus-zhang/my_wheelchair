@@ -24,10 +24,12 @@ class NavigationNode(Node):
         self.locations = self.load_locations()
         # GPIO setup
         GPIO.setmode(GPIO.BCM)
-        self.left_pwm_pin = 17
-        self.left_dir_pin = 27
-        self.right_pwm_pin = 18
-        self.right_dir_pin = 22
+        self.front_wheel_pwm_pin = 17
+        self.front_wheel_dir_pin = 27
+        self.rear_ight_dir_pin = 23
+        self.rear_right_dir_pin = 24
+        self.rear_left_pwm_pin = 18
+        self.rear_left_dir_pin = 22
         
         GPIO.setup(self.left_pwm_pin, GPIO.OUT)
         GPIO.setup(self.left_dir_pin, GPIO.OUT)
