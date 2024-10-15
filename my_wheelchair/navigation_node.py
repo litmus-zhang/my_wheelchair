@@ -26,21 +26,24 @@ class NavigationNode(Node):
         # GPIO setup
         GPIO.setmode(GPIO.BCM)
         self.front_wheel_pwm_pin = 17
-        self.front_wheel_dir_pin = 27
-        self.rear_ight_dir_pin = 23
-        self.rear_right_dir_pin = 24
-        self.rear_left_pwm_pin = 18
-        self.rear_left_dir_pin = 22
+        self.front_wheel_left_dir_pin = 27
+        self.front_wheel_right_dir_pin = 23
+        self.rear_wheel_forward_dir_pin = 24
+        self.rear_wheel_backward_dir_pin = 22
+        self.rear_wheel_pwm_pin = 18
         
-        GPIO.setup(self.left_pwm_pin, GPIO.OUT)
-        GPIO.setup(self.left_dir_pin, GPIO.OUT)
-        GPIO.setup(self.right_pwm_pin, GPIO.OUT)
-        GPIO.setup(self.right_dir_pin, GPIO.OUT)
+        GPIO.setup(self.front_wheel_pwm_pin, GPIO.OUT)
+        GPIO.setup(self.front_wheel_left_dir_pin, GPIO.OUT)
+        GPIO.setup(self.front_wheel_right_dir_pin, GPIO.OUT)
+        GPIO.setup(self.rear_wheel_forward_dir_pin, GPIO.OUT)
+        GPIO.setup(self.rear_wheel_backward_dir_pin, GPIO.OUT)
+        GPIO.setup(self.rear_wheel_pwm_pin, GPIO.OUT)
+    
         
-        self.left_pwm = GPIO.PWM(self.left_pwm_pin, 1000)
-        self.right_pwm = GPIO.PWM(self.right_pwm_pin, 1000)
-        self.left_pwm.start(0)
-        self.right_pwm.start(0)
+        self.rear_wheel_pwm_pin = GPIO.PWM(self.rear_wheel_pwm_pin, 1000)
+        self.front_wheel_pwm_pin = GPIO.PWM(self.front_wheel_pwm_pin, 1000)
+        self.rear_wheel_pwm_pin.start(0)
+        self.front_wheel_pwm_pin.start(0)
         
     def cmd_vel_callback(self, msg):
         left_speed = msg.linear.x - msg.angular.z
@@ -80,12 +83,14 @@ class NavigationNode(Node):
         
     def set_motor_speed(self, left_speed, right_speed):
         # Set left motor
-        GPIO.output(self.left_dir_pin, GPIO.HIGH if left_speed >= 0 else GPIO.LOW)
-        self.left_pwm.ChangeDutyCycle(abs(left_speed) * 100)
+        GPIO.output(self.front_wheel_left_dir_pin, GPIO.HIGH if left_speed >= 0 else GPIO.LOW)
+        GPIO.output(self.front_wheel_right_dir_pin, GPIO.HIGH if left_speed >= 0 else GPIO.LOW)
+        self.front_wheel_pwm_pin.ChangeDutyCycle(abs(left_speed) * 100)
         
         # Set right motor
-        GPIO.output(self.right_dir_pin, GPIO.HIGH if right_speed >= 0 else GPIO.LOW)
-        self.right_pwm.ChangeDutyCycle(abs(right_speed) * 100)
+        GPIO.output(self.rear_wheel_forward_dir_pin, GPIO.HIGH if right_speed >= 0 else GPIO.LOW)
+        GPIO.output(self.rear_wheel_backward_dir_pin, GPIO.HIGH if right_speed >= 0 else GPIO.LOW)
+        self.rear_wheel_pwm_pin.ChangeDutyCycle(abs(right_speed) * 100)
 
 def main(args=None):
     print("Hello from my_wheelchair, navigation node")
