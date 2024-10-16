@@ -26,6 +26,7 @@ setup(
             'voice_recognition_node = my_wheelchair.voice_recognition_node:main',
             'navigation_feedback_node = my_wheelchair.scripts.navigation_command_node:main',
             'voice_feedback_node = my_wheelchair.scripts.voice_recognition_node:main',
+            'headless_image_viewer_node = my_wheelchair.image_viewer_node:main',
         ],
     },
 )
