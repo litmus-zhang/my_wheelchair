@@ -15,7 +15,7 @@ class VoiceRecognitionNode(Node):
         print(f"device_index: {device_index}")
         self.timer = self.create_timer(1.0, self.listen_for_command)
         self.recognizer = sr.Recognizer()
-        self.microphone = sr.Microphone(device_index=16)
+        self.microphone = sr.Microphone(device_index=device_index)
 
     def listen_for_command(self):
         with self.microphone as source:
@@ -24,7 +24,7 @@ class VoiceRecognitionNode(Node):
             audio = self.recognizer.listen(source)
 
             try:
-                command = self.recognizer.recognize_sphinx(audio)
+                command = self.recognizer.recognize_whisper(audio, language="english", model="small")
                 self.get_logger().info(f'Recognized command: {command}')
                 msg = String()
                 msg.data = command
@@ -37,9 +37,6 @@ class VoiceRecognitionNode(Node):
 def main(args=None):
     pa = pyaudio.PyAudio()
     print("Hello from my_wheelchair, voice recognition node")
-    default_input_device_info = pa.get_default_input_device_info()
-    device_index = default_input_device_info['index']
-    print(f"device index >> {device_index}")
     rclpy.init(args=args)
     node = VoiceRecognitionNode()
     rclpy.spin(node)
