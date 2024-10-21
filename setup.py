@@ -1,10 +1,12 @@
 from setuptools import setup
+import os
+from glob import glob
 
 package_name = 'my_wheelchair'
 
 setup(
     name=package_name,
-    version='0.0.0',
+    version='0.0.1',
     packages=[package_name],
     data_files=[
         ('share/ament_index/resource_index/packages',
@@ -13,8 +15,8 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='ubuntu',
-    maintainer_email='ubuntu@todo.todo',
+    maintainer='dynage-technologies',
+    maintainer_email='hello@dynage.technology',
     description='TODO: Package description',
     license='Apache-2.0',
     tests_require=['pytest'],

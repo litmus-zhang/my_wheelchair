@@ -35,7 +35,6 @@ class VoiceRecognitionNode(Node):
                 self.get_logger().error(f'Could not request results; {e}')
 
 def main(args=None):
-    pa = pyaudio.PyAudio()
     print("Hello from my_wheelchair, voice recognition node")
     rclpy.init(args=args)
     node = VoiceRecognitionNode()

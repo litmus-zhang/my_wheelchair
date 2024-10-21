@@ -70,21 +70,44 @@ class NavigationNode(Node):
                 return
         self.get_logger().info(f"Unknown location in command: {command}")
     
-    def move_forward_backward(self):
-        GPIO.output(self.front_wheel_left_dir_pin, GPIO.HIGH )
-        GPIO.output(self.rear_wheel_forward_dir_pin, GPIO.HIGH )
-        print("Turning left")
-        time.sleep(5)
-        GPIO.output(self.front_wheel_left_dir_pin, GPIO.LOW )
-        GPIO.output(self.rear_wheel_forward_dir_pin, GPIO.LOW )
+    def basic_movement(self, msg):
+        # get command
+        command = msg.data.lower()
         
-        time.sleep(5)
-        GPIO.output(self.front_wheel_right_dir_pin, GPIO.HIGH )
-        GPIO.output(self.rear_wheel_backward_dir_pin, GPIO.HIGH )
-        print("Turning RIght")
-        time.sleep(5)
-        GPIO.output(self.front_wheel_right_dir_pin, GPIO.LOW )
-        GPIO.output(self.rear_wheel_backward_dir_pin, GPIO.LOW )
+        # check if command is "Forward". "Backward", "Left", "Right"
+        if "forward" in command:
+            # Move forward
+            GPIO.output(self.rear_wheel_forward_dir_pin, GPIO.HIGH )
+            time.sleep(5)
+            
+        elif "backward" in command:
+            # Move backward
+            GPIO.output(self.rear_wheel_backward_dir_pin, GPIO.HIGH )
+            time.sleep(5)
+        else: 
+            # No Movement
+            GPIO.output(self.rear_wheel_backward_dir_pin, GPIO.LOW )
+            GPIO.output(self.rear_wheel_forward_dir_pin, GPIO.LOW )
+            
+            
+        
+        
+        
+        
+        # GPIO.output(self.front_wheel_left_dir_pin, GPIO.HIGH )
+        # GPIO.output(self.rear_wheel_forward_dir_pin, GPIO.HIGH )
+        # print("Turning left")
+        # time.sleep(5)
+        # GPIO.output(self.front_wheel_left_dir_pin, GPIO.LOW )
+        # GPIO.output(self.rear_wheel_forward_dir_pin, GPIO.LOW )
+        
+        # time.sleep(5)
+        # GPIO.output(self.front_wheel_right_dir_pin, GPIO.HIGH )
+        # GPIO.output(self.rear_wheel_backward_dir_pin, GPIO.HIGH )
+        # print("Turning RIght")
+        # time.sleep(5)
+        # GPIO.output(self.front_wheel_right_dir_pin, GPIO.LOW )
+        # GPIO.output(self.rear_wheel_backward_dir_pin, GPIO.LOW )
         
         
         
@@ -118,7 +141,6 @@ def main(args=None):
     
     rclpy.init(args=args)
     node = NavigationNode()
-    node.move_forward_backward()
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()
