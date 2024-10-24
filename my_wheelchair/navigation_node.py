@@ -1,14 +1,34 @@
+import nltk
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist, PoseStamped
 from std_msgs.msg import String
 import RPi.GPIO as GPIO
 import time
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from rclpy.callback_groups import ReentrantCallbackGroup
+import tf2_ros
+
 
 class NavigationNode(Node):
     def __init__(self):
         super().__init__('navigation_node')
         # Node implementation
+        # Initialize NLTK
+        try:
+            nltk.data.find('tokenizers/punkt')
+        except LookupError:
+            nltk.download('punkt')
+            nltk.download('stopwords')
+        
+        # Create callback group for concurrent callbacks
+        self.callback_group = ReentrantCallbackGroup()
+        
+        # Create transform buffer and listener
+        self.tf_buffer = tf2_ros.Buffer()
+        self.tf_listener = tf2_ros.TransformListener(self.tf_buffer, self)
+        
         self.subscription = self.create_subscription(
             Twist,
             'cmd_vel',
@@ -20,6 +40,23 @@ class NavigationNode(Node):
             self.voice_command_callback,
             10)
         self.publisher_ = self.create_publisher(PoseStamped, 'goal_pose', 10)
+        
+        
+        self.command_patterns = {
+            'navigation': [
+                r'(?:can you )?(?:please )?(?:go|navigate|move|head|take me) (?:to )?(?:the )?(\w+)',
+                r'(?:i want to go|lets go|take me) (?:to )?(?:the )?(\w+)',
+                r'(?:can you )?(?:show|tell|guide) me (?:the way|how to get) (?:to )?(?:the )?(\w+)'
+            ],
+            'location_query': [
+                r'(?:where|what) (?:is|are) (?:the )?(?:available )?locations?',
+                r'(?:show|list|tell me) (?:all )?(?:the )?(?:available )?locations'
+            ],
+            'position_query': [
+                r'(?:where|what) (?:is|are) (?:my|our|the current) (?:location|position)',
+                r'(?:tell|show) me (?:my|our|the current) (?:location|position)'
+            ]
+        }
         
         
         # Load predefined locations
@@ -52,6 +89,30 @@ class NavigationNode(Node):
         right_speed = msg.linear.x + msg.angular.z
         
         self.set_motor_speed(left_speed, right_speed)
+    
+    
+    def parse_voice_command(self, command):
+        """Parse voice command using NLTK"""
+        tokens = word_tokenize(command.lower())
+        stop_words = set(stopwords.words('english'))
+        filtered_tokens = [w for w in tokens if w not in stop_words]
+        
+        # Check for navigation commands
+        if any(word in filtered_tokens for word in ['go', 'navigate', 'move', 'take']):
+            # Extract location from command
+            for token in filtered_tokens:
+                if token in self.locations:
+                    return ('navigate', token)
+        
+        # Check for location queries
+        if any(word in filtered_tokens for word in ['where', 'locations', 'list']):
+            return ('list_locations', None)
+        
+        # Check for position queries
+        if any(word in filtered_tokens for word in ['position', 'current']):
+            return ('get_position', None)
+            
+        return (None, None)
 
 
     def load_locations(self):
@@ -62,17 +123,12 @@ class NavigationNode(Node):
             "bedroom": {"x": 2.0, "y": -1.0, "z": 0.0}
         }
 
-    def voice_command_callback(self, msg):
-        command = msg.data.lower()
-        for location, coordinates in self.locations.items():
-            if location in command:
-                self.send_goal(coordinates)
-                return
-        self.get_logger().info(f"Unknown location in command: {command}")
     
     def basic_movement(self, msg):
         # get command
         command = msg.data.lower()
+        
+        self.get_logger().info(f"Direction in command: {command}")
         
         # check if command is "Forward". "Backward", "Left", "Right"
         if "forward" in command:

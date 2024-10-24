@@ -24,7 +24,7 @@ class VoiceRecognitionNode(Node):
             audio = self.recognizer.listen(source)
 
             try:
-                command = self.recognizer.recognize_whisper(audio, language="english", model="small")
+                command = self.recognizer.recognize_google_cloud(audio, credentials_json="/home/ubuntu/.config/gcloud/application_default_credentials.json")
                 self.get_logger().info(f'Recognized command: {command}')
                 msg = String()
                 msg.data = command
